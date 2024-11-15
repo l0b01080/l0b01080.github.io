@@ -27,11 +27,9 @@
 <body>
     <h1>Prosty Edytor Tekstu</h1>
     <div id="toolbar">
-
-        <button onclick="saveText()">Zapisz</button>
+        <button onclick="saveText()">Zapisz na serwerze</button>
     </div>
     <div id="editor" contenteditable="true">
-
     </div>
     <script>
         function formatText(command) {
@@ -43,13 +41,26 @@
             }
         }
 
-        function saveText() {
-            const text = document.getElementById('editor').innerText; // Pobiera tylko tekst (bez HTML)
-            const blob = new Blob([text], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'zakupy.txt'; // Ustaw nazwę pliku
-            link.click();
+        async function saveText() {
+            const text = document.getElementById('editor').innerText; // Pobierz czysty tekst
+            try {
+                const response = await fetch('/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content: text, filename: 'zakupy.txt' })
+                });
+
+                if (response.ok) {
+                    alert('Tekst zapisany na serwerze!');
+                } else {
+                    alert('Błąd podczas zapisywania na serwerze.');
+                }
+            } catch (error) {
+                console.error('Błąd:', error);
+                alert('Nie udało się połączyć z serwerem.');
+            }
         }
     </script>
 </body>
